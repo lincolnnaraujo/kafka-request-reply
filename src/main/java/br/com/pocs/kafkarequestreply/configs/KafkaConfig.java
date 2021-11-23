@@ -17,6 +17,7 @@ import org.springframework.kafka.requestreply.ReplyingKafkaTemplate;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 import org.springframework.kafka.support.serializer.JsonSerializer;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,7 +40,12 @@ public class KafkaConfig {
         ConcurrentMessageListenerContainer<String, PagamentoResponse> replyContainer = factory.createContainer(replyTopic);
         replyContainer.getContainerProperties().setMissingTopicsFatal(false);
         replyContainer.getContainerProperties().setGroupId(groupId);
-        return new ReplyingKafkaTemplate<>(pf, replyContainer);
+
+        //Controle de Time out
+        final var replyingKafkaTemplate = new ReplyingKafkaTemplate(pf, replyContainer);
+        replyingKafkaTemplate.setDefaultReplyTimeout(Duration.ofMillis(1000));
+
+        return replyingKafkaTemplate;
     }
     @Bean
     public KafkaTemplate<String, PagamentoResponse> replyTemplate(ProducerFactory<String, PagamentoResponse> pf,
@@ -60,7 +66,6 @@ public class KafkaConfig {
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, groupId);
-
         return props;
     }
 
