@@ -42,11 +42,12 @@ public class KafkaConfig {
         replyContainer.getContainerProperties().setGroupId(groupId);
 
         //Controle de Time out
-        final var replyingKafkaTemplate = new ReplyingKafkaTemplate(pf, replyContainer);
-        replyingKafkaTemplate.setDefaultReplyTimeout(Duration.ofMillis(1000));
+        final var template = new ReplyingKafkaTemplate(pf, replyContainer);
+        template.setDefaultReplyTimeout(Duration.ofMillis(1000));
 
-        return replyingKafkaTemplate;
+        return template;
     }
+
     @Bean
     public KafkaTemplate<String, PagamentoResponse> replyTemplate(ProducerFactory<String, PagamentoResponse> pf,
                                                              ConcurrentKafkaListenerContainerFactory<String, PagamentoResponse> factory) {
@@ -56,9 +57,7 @@ public class KafkaConfig {
         return kafkaTemplate;
     }
 
-
-
-
+    //////////////////
     @Bean
     public Map<String, Object> consumerConfigs() {
         Map<String, Object> props = new HashMap<>();
